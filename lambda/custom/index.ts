@@ -1,5 +1,5 @@
 import * as Alexa from 'ask-sdk';
-import { RequestEnvelope, ResponseEnvelope, services } from 'ask-sdk-model';
+import { RequestEnvelope, ResponseEnvelope, services, SessionEndedRequest } from 'ask-sdk-model';
 
 //=========================================================================================================================================
 //TODO: このコメント行より下の項目に注目してください。
@@ -34,34 +34,20 @@ const data = [
 //=========================================================================================================================================
 //この行から下のコードに変更を加えると、スキルが動作しなくなるかもしれません。わかる人のみ変更を加えてください。  
 //=========================================================================================================================================
-function getRandomItem(arrayOfItems) {
-    // can take an array, or a dictionary
-    if (Array.isArray(arrayOfItems)) {
-      // the argument is an array []
-      let i = 0;
-      i = Math.floor(Math.random() * arrayOfItems.length);
-      return (arrayOfItems[i]);
-    }
-
-    if (typeof arrayOfItems === 'object') {
-      // argument is object, treat as dictionary
-      const result = {};
-      const key = this.getRandomItem(Object.keys(arrayOfItems));
-      result[key] = arrayOfItems[key];
-      return result;
-    }
-    // not an array or object, so just return the input
-    return arrayOfItems;
+function getRandomItem(arrayOfItems: string[]) {
+    let i = 0;
+    i = Math.floor(Math.random() * arrayOfItems.length);
+    return (arrayOfItems[i]);
 }
 
 const GetNewFactHandler = {
-    canHandle(handlerInput) {
+    canHandle(handlerInput: Alexa.HandlerInput) {
       const request = handlerInput.requestEnvelope.request;
       return request.type === 'LaunchRequest'
         || (request.type === 'IntentRequest'
           && request.intent.name === 'GetNewFactIntent');
     },
-    handle(handlerInput) {
+    handle(handlerInput: Alexa.HandlerInput) {
       const randomFact = getRandomItem(data);
       const speechOutput = GET_FACT_MESSAGE + randomFact;
   
@@ -73,12 +59,12 @@ const GetNewFactHandler = {
 };
   
 const HelpHandler = {
-    canHandle(handlerInput) {
+    canHandle(handlerInput: Alexa.HandlerInput) {
       const request = handlerInput.requestEnvelope.request;
       return request.type === 'IntentRequest'
         && request.intent.name === 'AMAZON.HelpIntent';
     },
-    handle(handlerInput) {
+    handle(handlerInput: Alexa.HandlerInput) {
       return handlerInput.responseBuilder
         .speak(HELP_MESSAGE)
         .reprompt(HELP_REPROMPT)
@@ -90,12 +76,12 @@ const FallbackHandler = {
     // 2018-May-01: AMAZON.FallackIntent is only currently available in en-US locale.
     //              This handler will not be triggered except in that locale, so it can be
     //              safely deployed for any locale.
-    canHandle(handlerInput) {
+    canHandle(handlerInput: Alexa.HandlerInput) {
       const request = handlerInput.requestEnvelope.request;
       return request.type === 'IntentRequest'
         && request.intent.name === 'AMAZON.FallbackIntent';
     },
-    handle(handlerInput) {
+    handle(handlerInput: Alexa.HandlerInput) {
       return handlerInput.responseBuilder
         .speak(FALLBACK_MESSAGE)
         .reprompt(FALLBACK_REPROMPT)
@@ -104,13 +90,13 @@ const FallbackHandler = {
 };
   
 const ExitHandler = {
-    canHandle(handlerInput) {
+    canHandle(handlerInput: Alexa.HandlerInput) {
       const request = handlerInput.requestEnvelope.request;
       return request.type === 'IntentRequest'
         && (request.intent.name === 'AMAZON.CancelIntent'
           || request.intent.name === 'AMAZON.StopIntent');
     },
-    handle(handlerInput) {
+    handle(handlerInput: Alexa.HandlerInput) {
       return handlerInput.responseBuilder
         .speak(STOP_MESSAGE)
         .getResponse();
@@ -118,12 +104,13 @@ const ExitHandler = {
   };
   
 const SessionEndedRequestHandler = {
-    canHandle(handlerInput) {
+    canHandle(handlerInput: Alexa.HandlerInput) {
       const request = handlerInput.requestEnvelope.request;
       return request.type === 'SessionEndedRequest';
     },
-    handle(handlerInput) {
-      console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+    handle(handlerInput: Alexa.HandlerInput) {
+        const request: SessionEndedRequest = <SessionEndedRequest>handlerInput.requestEnvelope.request;
+        console.log(`Session ended with reason: ${request.reason}`);
   
       return handlerInput.responseBuilder.getResponse();
     },
@@ -133,7 +120,7 @@ const ErrorHandler = {
     canHandle() {
       return true;
     },
-    handle(handlerInput, error) {
+    handle(handlerInput: Alexa.HandlerInput, error: Error) {
       console.log(`Error handled: ${error.message}`);
   
       return handlerInput.responseBuilder
