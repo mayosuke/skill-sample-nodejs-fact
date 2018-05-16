@@ -1,7 +1,5 @@
-/* eslint-disable  func-names */
-/* eslint-disable  no-console */
-
-const Alexa = require('ask-sdk-core');
+import * as Alexa from 'ask-sdk';
+import { RequestEnvelope, ResponseEnvelope, services } from 'ask-sdk-model';
 
 //=========================================================================================================================================
 //TODO: このコメント行より下の項目に注目してください。
